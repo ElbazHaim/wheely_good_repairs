@@ -1,18 +1,19 @@
 --Wheely-Good Repairs
-
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
+-- -- Cleanup
 -- use master;
 -- alter database wheely_good_repairs set single_user with rollback immediate;
 -- alter database wheely_good_repairs set multi_user;
 -- DROP DATABASE IF EXISTS wheely_good_repairs;
 -- CREATE DATABASE wheely_good_repairs;
-
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
 -- Declarations
 
 --- Database Declaration
 
--- CREATE DATABASE wheely_good_repairs;
+CREATE DATABASE wheely_good_repairs;
 USE wheely_good_repairs;
-
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
 -- Tables Declaration
 
 --- Entities
@@ -34,7 +35,6 @@ CREATE TABLE Departments (
     DepartmentName VARCHAR(100) UNIQUE,
     DepartmentHead INT,
     YearlyBudget DECIMAL(15, 2) NOT NULL,
-    
     CONSTRAINT YearlyBudget CHECK (YearlyBudget > 0)
 );
 
@@ -51,7 +51,6 @@ CREATE TABLE Employees (
     Salary DECIMAL(10, 2) NOT NULL,
     Education VARCHAR(100),
     BankAccount VARCHAR(30) NOT NULL,
-
     FOREIGN KEY (ReportsTo) REFERENCES Employees(EmployeeNumber)
 );
 
@@ -69,9 +68,7 @@ CREATE TABLE CustomerServices (
     EmployeeNumber INT PRIMARY KEY,
     CustomerSatisfactionScore DECIMAL(3,2),
     EnglishSpeaker BIT,
-
     FOREIGN KEY (EmployeeNumber) REFERENCES Employees(EmployeeNumber),
-    
     CONSTRAINT CHK_SatisfactionScore CHECK (CustomerSatisfactionScore >= 0 AND CustomerSatisfactionScore <= 5)
 );
 
@@ -79,7 +76,6 @@ CREATE TABLE Technicians (
     EmployeeNumber INT PRIMARY KEY,
     Specialty VARCHAR(100),
     CertificationID VARCHAR(20),
-    
     FOREIGN KEY (EmployeeNumber) REFERENCES Employees(EmployeeNumber)
 );
 
@@ -108,7 +104,6 @@ CREATE TABLE Vehicles (
     Accidents INT,
     InsurancePolicy VARCHAR(100),
     Color VARCHAR(50),
-    
     FOREIGN KEY (ModelCode) REFERENCES Models(Code),
     FOREIGN KEY (Owner) REFERENCES Customers(CustomerID)
 );
@@ -125,6 +120,7 @@ CREATE TABLE Suppliers (
 
 
 --- Relations
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
 CREATE TABLE Repairs (
     RepairID INT IDENTITY(1,1) PRIMARY KEY,
     TechnicianID INT,
@@ -133,7 +129,6 @@ CREATE TABLE Repairs (
     StartRepairTime DATETIME,
     EndRepairTime DATETIME,
     TotalCost DECIMAL(10, 2),
-    
     FOREIGN KEY (TechnicianID) REFERENCES Technicians(EmployeeNumber),
     FOREIGN KEY (LicensePlate) REFERENCES Vehicles(LicensePlate),
     FOREIGN KEY (PartID) REFERENCES Parts(PartID)
@@ -149,12 +144,11 @@ CREATE TABLE Orders (
     PricePerUnit DECIMAL(10, 2),
     TotalPrice DECIMAL(10, 2),
     ReceiptNumber VARCHAR(50),
-
     FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID),
     FOREIGN KEY (PartID) REFERENCES Parts(PartID),
-    
     CONSTRAINT CHK_Quantity CHECK (Quantity > 0),
     CONSTRAINT CHK_PricePerUnit CHECK (PricePerUnit > 0),
     CONSTRAINT CHK_TotalPrice CHECK (TotalPrice > 0),
     CONSTRAINT CHK_ReceiptNumber CHECK (ReceiptNumber IS NOT NULL)
 );
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
