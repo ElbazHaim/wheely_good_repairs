@@ -183,8 +183,7 @@ CREATE TABLE Payments (
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
 -- Inserts
 
-INSERT INTO Customers (FirstName, LastName, IdentificationNumber, Birthdate, InsuranceCompany, City, Address, 
-            PhoneNumber, Email, LicenceNumber)
+INSERT INTO Customers
 VALUES
     ('Avraham', 'Levi', '12345678', '1990-05-15', 'Harel Insurance', 'Tel Aviv', '123 Hertzl', 
         '1234567890', 'avraham@gmail.com', '12345678'),
@@ -201,9 +200,6 @@ VALUES
 -- Departments and employees foreign keys are circular - I Will disable the constraints just so that I can insert the departments
 ALTER TABLE Employees NOCHECK CONSTRAINT FK_DepartmentID;
 ALTER TABLE Departments NOCHECK CONSTRAINT FK_DepartmentHead;
-
--- Enable constraints again
-
 
 INSERT INTO Employees VALUES 
     ('Avi', 'Cohen', '123456789', '1985-05-15', '2010-01-15', 1, NULL, -- Owner & General Manager
@@ -281,11 +277,72 @@ VALUES
 
 INSERT INTO Technicians
 VALUES
-    (12, 'Motorcycles'),
-    (13, 'Old Models'),
-    (14, 'Electrical Engines'),
-    (15, 'Hybrid Cars'),
-    (16, 'Paint Renewal'),
-    (17, 'Paint Renewal');
+    (12, 'Motorcycles', 'Kf9Gt7DpL1'),
+    (13, 'Old Models', 'XeR5jYqWu8'),
+    (14, 'Electrical Engines', 'PmZ2vNcHs4'),
+    (15, 'Hybrid Cars', 'Tl7KbFmRi3'),
+    (16, 'Paint Renewal', 'Qw1XnZtYv4'),
+    (17, 'Paint Renewal', 'Eg3HkMlPq5');
+
+INSERT INTO Parts
+VALUES
+    ('Engine Oil', 25.99, '1 Quart', 'ACME Motors'),
+    ('Brake Pads', 39.95, 'Standard', 'BrakeTech'),
+    ('Air Filter', 12.50, 'Standard', 'FilterMaster'),
+    ('Spark Plugs', 8.99, 'Set of 4', 'SparkTech'),
+    ('Radiator Hose', 18.75, '18 inches', 'CoolantCo'),
+    ('Fuel Pump', 65.00, 'Standard', 'Fueltronics'),
+    ('Transmission Fluid', 19.50, '1 Quart', 'GearLube'),
+    ('Alternator', 120.75, 'Standard', 'PowerGen'),
+    ('Thermostat', 14.25, 'Standard', 'TempControl'),
+    ('Serpentine Belt', 23.50, 'Accessory', 'BeltMaster');
+
+INSERT INTO Models
+VALUES
+    ('CAMRY21', 'Toyota', 'car', 'gasoline', 'automatic', '2021', 5),
+    ('CIVIC19', 'Honda', 'car', 'gasoline', 'manual', '2019', 5),
+    ('GOLF20', 'Volkswagen', 'car', 'diesel', 'semi-automatic', '2020', 5),
+    ('MODEL322', 'Tesla', 'car', 'electric', 'automatic', '2022', 5),
+    ('F15020', 'Ford', 'truck', 'gasoline', 'automatic', '2020', 3),
+    ('R1K20', 'Yamaha', 'motorcycle', 'gasoline', 'manual', '2020', 2),
+    ('XC9019', 'Volvo', 'SUV', 'hybrid', 'automatic', '2019', 7),
+    ('TRANSIT20', 'Ford', 'van', 'diesel', 'automatic', '2020', 9),
+    ('WRANGLER20', 'Jeep', 'SUV', 'gasoline', 'manual', '2020', 4),
+    ('JETTA18', 'Volkswagen', 'car', 'gasoline', 'DSG', '2018', 5),
+    ('NINJA21', 'Kawasaki', 'motorcycle', 'gasoline', 'manual', '2021', 1);
+
+INSERT INTO Suppliers
+VALUES
+    ('123456', 'AutoParts Co.', '1234567890', 'David Cohen', '123 Hayarkon St', 'david.cohen@gmail.com'),
+    ('789012', 'MotoSpares', '9876543210', 'Sarah Levi', '456 Hess Ave', 'sarah.levi@gmail.com'),
+    ('345678', 'VehicleComponents', '5551234567', 'Daniel Goldstein', '789 Hapartizanim Rd', 'daniel.goldstein@gmail.com'),
+    ('901234', 'CarCare Supplies', '2223334444', 'Liat Rosenberg', '101 Kibutz-Galuyot Ln', 'liat.rosenberg@gmail.com'),
+    ('567890', 'TruckParts Ltd.', '7778889999', 'Jonathan Ben-David', '202 Hahagana Blvd', 'jonathan.bendavid@gmail.com');
+
+INSERT INTO Repairs
+VALUES
+    (12, '1234567', 1, '2023-01-15 09:00:00', '2023-01-15 11:00:00', 275.00),
+    (13, '9876543', 3, '2023-02-20 13:30:00', '2023-02-20 16:30:00', 198.55),
+    (14, '2345678', 2, '2023-03-10 10:00:00', '2023-03-10 14:00:00', 413.32),
+    (15, '7654321', 5, '2023-04-05 12:45:00', '2023-04-05 17:00:00', 264.28),
+    (16, '3456789', 4, '2023-05-18 14:00:00', '2023-05-18 20:00:00', 605.00),
+    (17, '8765432', 6, '2023-06-07 16:30:00', '2023-06-07 19:30:00', 319.55),
+    (12, '4567890', 7, '2023-07-10 15:45:00', '2023-07-10 20:00:00', 385.00),
+    (13, '7890123', 1, '2023-03-28 09:30:00', '2023-03-28 12:30:00', 308.28),
+    (14, '2345678', 3, '2023-02-10 14:00:00', '2023-02-10 18:00:00', 297.00),
+    (15, '5678901', 5, '2023-06-30 10:00:00', '2023-06-30 13:30:00', 247.50);
+
+INSERT INTO Orders (SupplierID, PartID, OrderDate, ReceivedDate, Quantity, PricePerUnit, TotalPrice, ReceiptNumber)
+VALUES
+    (1, 2, '2023-07-05 09:00:00', '2023-07-10 14:00:00', 100, 15.75, 1575.00, '12345'),
+    (3, 5, '2023-06-20 10:30:00', '2023-06-25 11:45:00', 50, 30.50, 1525.00, '67890'),
+    (2, 3, '2023-04-15 11:15:00', '2023-04-20 13:30:00', 200, 8.25, 1650.00, '23456'),
+    (4, 1, '2023-08-05 12:45:00', '2023-08-10 16:00:00', 75, 22.00, 1650.00, '78901'),
+    (1, 7, '2023-05-10 14:30:00', '2023-05-15 17:15:00', 120, 10.00, 1200.00, '34567'),
+    (3, 4, '2023-03-25 15:00:00', '2023-03-30 18:30:00', 90, 40.25, 3615.00, '89012'),
+    (2, 6, '2023-02-15 16:30:00', '2023-02-20 19:45:00', 40, 18.75, 750.00, '45678'),
+    (4, 2, '2023-01-10 17:45:00', '2023-01-15 20:00:00', 150, 25.50, 3825.00, '90123'),
+    (1, 5, '2023-08-10 09:15:00', '2023-08-15 12:30:00', 80, 35.00, 2800.00, '56789'),
+    (3, 7, '2023-07-05 10:45:00', '2023-07-10 14:00:00', 60, 12.00, 720.00, '23456');
 
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
