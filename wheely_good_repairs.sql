@@ -1,18 +1,25 @@
---Wheely-Good Repairs
+-- Wheely-Good Repairs
+-- Database Design & Analysis Project
+
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
--- -- Cleanup
--- use master;
--- alter database wheely_good_repairs set single_user with rollback immediate;
--- alter database wheely_good_repairs set multi_user;
--- DROP DATABASE IF EXISTS wheely_good_repairs;
--- CREATE DATABASE wheely_good_repairs;
+-- Cleanup, do not run on first run. Run blocks separately when cleaning.
+use master;
+alter database wheely_good_repairs set single_user with rollback immediate;
+alter database wheely_good_repairs set multi_user;
+
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
+DROP DATABASE IF EXISTS wheely_good_repairs;
+
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
 -- Declarations
 
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
 --- Database Declaration
-
 CREATE DATABASE wheely_good_repairs;
+
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
 USE wheely_good_repairs;
+
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
 -- Tables Declaration
 
@@ -20,8 +27,11 @@ USE wheely_good_repairs;
 
 CREATE TABLE Customers (
     CustomerID INT IDENTITY(1,1) PRIMARY KEY,
-    IdentificationNumber VARCHAR(8) NOT NULL,
-    Birthdate DATE,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    IdentificationNumber VARCHAR(8) NOT NULL UNIQUE,
+    BirthDate DATE,
+    JoinDate DATE DEFAULT GETDATE(),
     InsuranceCompany VARCHAR(50) NOT NULL,
     City VARCHAR(50) NOT NULL,
     Address VARCHAR(50) NOT NULL,
@@ -40,9 +50,11 @@ CREATE TABLE Departments (
 
 CREATE TABLE Employees (
     EmployeeNumber INT IDENTITY(1,1) PRIMARY KEY,
-    IdentificationNumber VARCHAR(8) NOT NULL,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    IdentificationNumber VARCHAR(9) NOT NULL,
     BirthDate DATE NOT NULL,
-    HireDate DATE NOT NULL,
+    HireDate DATE NOT NULL DEFAULT GETDATE(),
     DepartmentID INT,
     ReportsTo INT,
     Email VARCHAR(100),
@@ -54,7 +66,7 @@ CREATE TABLE Employees (
     FOREIGN KEY (ReportsTo) REFERENCES Employees(EmployeeNumber)
 );
 
--- Altering tables to referrence each other
+-- Altering employees and departments tables so that they refer to each other
 ALTER TABLE Employees
 ADD CONSTRAINT FK_DepartmentID
 FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID);
@@ -63,17 +75,15 @@ ALTER TABLE Departments
 ADD CONSTRAINT FK_DepartmentHead
 FOREIGN KEY (DepartmentHead) REFERENCES Employees(EmployeeNumber);
 
-
 CREATE TABLE CustomerServices (
-    EmployeeNumber INT PRIMARY KEY,
+    EmployeeNumber INT PRIMARY KEY FOREIGN KEY (EmployeeNumber) REFERENCES Employees(EmployeeNumber),
     CustomerSatisfactionScore DECIMAL(3,2),
     EnglishSpeaker BIT,
-    FOREIGN KEY (EmployeeNumber) REFERENCES Employees(EmployeeNumber),
-    CONSTRAINT CHK_SatisfactionScore CHECK (CustomerSatisfactionScore >= 0 AND CustomerSatisfactionScore <= 5)
+    CONSTRAINT CHK_SatisfactionScore CHECK (CustomerSatisfactionScore BETWEEN 0 AND 5)
 );
 
 CREATE TABLE Technicians (
-    EmployeeNumber INT PRIMARY KEY,
+    EmployeeNumber INT PRIMARY KEY FOREIGN KEY (EmployeeNumber) REFERENCES Employees(EmployeeNumber),
     Specialty VARCHAR(100),
     CertificationID VARCHAR(20),
     FOREIGN KEY (EmployeeNumber) REFERENCES Employees(EmployeeNumber)
@@ -93,13 +103,17 @@ CREATE TABLE Models (
     Type VARCHAR(10),
     FuelType VARCHAR(50),
     Gear VARCHAR(10),
-    Year DATE
+    Year DATE,
+    Seats INT,
+    CHECK (Type IN ('car', 'motorcycle', 'truck', 'SUV', 'van')),
+    CHECK (FuelType IN ('gasoline', 'diesel', 'electric', 'hybrid', 'natural gas')),
+    CHECK (Gear IN ('manual', 'automatic', 'semi-automatic', 'CVT', 'DSG'))
 );
 
 CREATE TABLE Vehicles (
     LicensePlate VARCHAR(20) PRIMARY KEY,
-    ModelCode VARCHAR(20),
-    Owner INT,
+    ModelCode VARCHAR(20) NOT NULL,
+    Owner INT NOT NULL,
     Mileage INT,
     Accidents INT,
     InsurancePolicy VARCHAR(100),
@@ -118,15 +132,16 @@ CREATE TABLE Suppliers (
     Email VARCHAR(50)
 );
 
-
---- Relations
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
+--- Relations
+
+-- Technicians repair cars using parts
 CREATE TABLE Repairs (
     RepairID INT IDENTITY(1,1) PRIMARY KEY,
     TechnicianID INT,
     LicensePlate VARCHAR(20),
     PartID INT,
-    StartRepairTime DATETIME,
+    StartRepairTime DATETIME DEFAULT GETDATE(),
     EndRepairTime DATETIME,
     TotalCost DECIMAL(10, 2),
     FOREIGN KEY (TechnicianID) REFERENCES Technicians(EmployeeNumber),
@@ -134,11 +149,12 @@ CREATE TABLE Repairs (
     FOREIGN KEY (PartID) REFERENCES Parts(PartID)
 );
 
+-- Departments pay suppliers for parts
 CREATE TABLE Orders (
     OrderID INT IDENTITY(1,1) PRIMARY KEY,
     SupplierID INT,
     PartID INT,
-    OrderDate DATETIME,
+    OrderDate DATETIME DEFAULT GETDATE(),
     ReceivedDate DATETIME,
     Quantity INT,
     PricePerUnit DECIMAL(10, 2),
@@ -151,4 +167,125 @@ CREATE TABLE Orders (
     CONSTRAINT CHK_TotalPrice CHECK (TotalPrice > 0),
     CONSTRAINT CHK_ReceiptNumber CHECK (ReceiptNumber IS NOT NULL)
 );
+
+-- Customers pay departments for repairs
+CREATE TABLE Payments (
+    PaymentID INT IDENTITY(1,1) PRIMARY KEY,
+    CustomerID INT,
+    DepartmentID INT,
+    RepairID INT,
+    TransactionDate DATETIME DEFAULT GETDATE(),
+    AmountPaid DECIMAL(10, 2),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID),
+    FOREIGN KEY (RepairID) REFERENCES Repairs(RepairID)
+);
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
+-- Inserts
+
+INSERT INTO Customers (FirstName, LastName, IdentificationNumber, Birthdate, InsuranceCompany, City, Address, 
+            PhoneNumber, Email, LicenceNumber)
+VALUES
+    ('Avraham', 'Levi', '12345678', '1990-05-15', 'Harel Insurance', 'Tel Aviv', '123 Hertzl', 
+        '1234567890', 'avraham@gmail.com', '12345678'),
+    ('Sarah', 'Cohen', '87654321', '1985-10-20', 'IDII Insurance', 'Jerusalem', '456 Jaffa', 
+        '9876543210', 'sara@yahoo.com', '87654321'),
+    ('Yaakov', 'Ben-David', '23456789', '2000-02-01', 'Leumit Insurance', 'Haifa', '789 Harbor', 
+        '5678901234', 'yaakov@gmail.com', '23456789'),
+    ('Rachel', 'Shapira', '98765432', '1978-08-10', 'Poalim Insurance', 'Beersheba', '567 Ben-Gurion', 
+        '8765432109', 'rachel@yahoo.com', '98765432'),
+    ('Daniel', 'Almog', '34567890', '1995-03-25', 'Harel Insurance', 'Eilat', '901 Hatamar', 
+        '2345678901', 'daniel@gmail.com', '34567890');
+
+
+-- Departments and employees foreign keys are circular - I Will disable the constraints just so that I can insert the departments
+ALTER TABLE Employees NOCHECK CONSTRAINT FK_DepartmentID;
+ALTER TABLE Departments NOCHECK CONSTRAINT FK_DepartmentHead;
+
+-- Enable constraints again
+
+
+INSERT INTO Employees VALUES 
+    ('Avi', 'Cohen', '123456789', '1985-05-15', '2010-01-15', 1, NULL, -- Owner & General Manager
+            'avi@example.com', 'Tel Aviv', '123 Main', 60000.00, 'MSc. Business Management', '1234567890123');
+
+
+INSERT INTO Employees
+VALUES
+    -- Management
+    ('Rachel', 'Levi', '234567894', '1990-03-20', '2021-02-10', 1, 1, 
+            'rachel@example.com', 'Tel Aviv', '456 Elm', 55000.00, 'BSc. Accounting', '2345678901234'),
+    ('Eyal', 'Sela', '345678902', '1988-08-01', '2019-05-05', 2, 1, 
+            'eyal@example.com', 'Tel Aviv', '789 Oak', 58000.00, 'MSc. Business Management', '3456789012345'),
+    ('Tamar', 'Ben-David', '456784901', '1992-10-10', '2022-03-20', 3, 1, 
+            'tamar@example.com', 'Tel Aviv', '101 Pine', 52000.00, 'Diploma in Automotive Technology', '4567890123456'),
+    ('Yaniv', 'Alon', '567890512', '1987-12-05', '2020-09-18', 4, 1, 
+            'yaniv@example.com', 'Tel Aviv', '202 Cedar', 59000.00, 'Practical Engineering in Electronics', '5678901234567'),
+    ('Maya', 'Carmel', '678901123', '1995-06-25', '2023-01-10', 5, 1, 
+            'maya@example.com', 'Tel Aviv', '303 Walnut', 54000.00, 'BSc in Automotive Technology', '6789012345678');
+
+
+INSERT INTO Departments
+VALUES
+    ('Accounting', 2, 21966.75),
+    ('Customer Service', 3, 91234.56),
+    ('Mechanical', 4, 105678.90),
+    ('Electrical', 5, 83210.54),
+    ('Paint Shop', 6, 64567.89);
+
+-- Enable constraints
+ALTER TABLE Departments WITH CHECK CHECK CONSTRAINT FK_DepartmentHead;
+ALTER TABLE Employees WITH CHECK CHECK CONSTRAINT FK_DepartmentID;
+
+
+    -- Accounting
+    
+
+    -- Customer Service
+INSERT INTO Employees
+VALUES
+    ('Inbar', 'Sapir', '890112345', '1993-02-28', '2021-12-01', 3, NULL, 
+            'inbar@example.com', 'Jerusalem', '505 Birch', 62000.00, 'Diploma in Auto Mechanics', '8901234567890'),
+    ('Yoni', 'Lazarus', '901232456', '1989-11-15', '2018-10-20', 3, 8, 
+            'yoni@example.com', 'Jerusalem', '606 Oak', 58000.00, 'BSc. English Literature', '9012345678901'),
+    ('Lior', 'Golan', '012343567', '1991-07-30', '2022-04-05', 3, 8, 
+            'lior@example.com', 'Jerusalem', '707 Pine', 54000.00, Null, '0123456789012'),
+    ('Noga', 'Cohen', '987654432', '1994-04-22', '2019-08-18', 3, 8, 
+            'noga@example.com', 'Jerusalem', '808 Walnut', 56000.00, 'Student', '9876543210987'),
+    ('Eli', 'Eisenberg', '876554321', '1986-01-18', '2020-03-10', 3, NULL, 
+            'eli@example.com', 'Haifa', '909 Cedar', 53000.00, 'Student', '8765432109876');
+
+INSERT INTO CustomerServices
+VALUES
+    (7, 4.56, 1),
+    (8, 3.50, 1),
+    (9, 4.94, 0),
+    (10, 3.07, 1),
+    (11, 3.95, 0);
+
+    -- Technicians
+INSERT INTO Employees
+VALUES
+    ('Oren', 'Dagan', '789061234', '1990-09-12', '2022-07-05', 4, 1, 
+            'oren@example.com', 'Tel Aviv', '404 Maple', 57000.00, 'Practical Engineering in Mechanics', '7890123456789'),
+    ('Noa', 'Gavriel', '766543210', '1993-08-09', '2022-06-15', 4, 12, 
+            'noa@example.com', 'Haifa', '1010 Elm', 57000.00, 'Diploma in Automotive Technology', '7654321098765'),
+    ('Eitan', 'Adler', '654832109', '1988-05-07', '2019-12-05', 5, NULL, 
+            'eitan@example.com', 'Tel Aviv', '1111 Oak', 55000.00, 'Practical Engineering in Auto Electronics', '6543210987654'),
+    ('Talia', 'Levy', '543213098', '1997-03-02', '2023-02-20', 5, 14, 
+            'talia@example.com', 'Tel Aviv', '1212 Pine', 59000.00, 'BSc. in Mechanical Engineering', '5432109876543'),
+    ('Ronen', 'Cohen', '432104987', '1991-12-12', '2018-07-01', 6, NULL, 
+            'ronen@example.com', 'Eilat', '1313 Elm', 51000.00, 'BSc. Electrical Engineering', '4321098765432'),
+    ('Eli', 'Luzon', '953468725', '1990-05-06', '2019-02-02', 6, NULL, 
+    'Luzon@gmail.com', 'Holon', '1234 Sokolov', 75000.00, NULL, '3462587295643');
+
+INSERT INTO Technicians
+VALUES
+    (12, 'Motorcycles'),
+    (13, 'Old Models'),
+    (14, 'Electrical Engines'),
+    (15, 'Hybrid Cars'),
+    (16, 'Paint Renewal'),
+    (17, 'Paint Renewal');
+
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
