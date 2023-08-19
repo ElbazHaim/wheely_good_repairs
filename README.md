@@ -1,2 +1,2 @@
-# wheely_good_repairs
-Car repair shop 'toy' database 
+# Wheely Good repairs
+My car repair shop toy database, made for MS SQL Server.
