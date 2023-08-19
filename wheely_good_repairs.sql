@@ -34,7 +34,7 @@ CREATE TABLE Customers (
     Address VARCHAR(50) NOT NULL,
     PhoneNumber VARCHAR(10) NOT NULL,
     Email VARCHAR(50),
-    LicenceNumber VARCHAR(20)
+    LicenseNumber VARCHAR(20)
 );
 
 CREATE TABLE Departments (
@@ -152,18 +152,19 @@ CREATE TABLE Orders (
     OrderID INT IDENTITY(1,1) PRIMARY KEY,
     SupplierID INT,
     PartID INT,
+    DepartmentID INT,
     OrderDate DATETIME DEFAULT GETDATE(),
     ReceivedDate DATETIME,
     Quantity INT,
     PricePerUnit DECIMAL(10, 2),
     TotalPrice DECIMAL(10, 2),
-    ReceiptNumber VARCHAR(50),
+    ReceiptNumber VARCHAR(50) NOT NULL,
     FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID),
     FOREIGN KEY (PartID) REFERENCES Parts(PartID),
+    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID),
     CONSTRAINT CHK_Quantity CHECK (Quantity > 0),
     CONSTRAINT CHK_PricePerUnit CHECK (PricePerUnit > 0),
-    CONSTRAINT CHK_TotalPrice CHECK (TotalPrice > 0),
-    CONSTRAINT CHK_ReceiptNumber CHECK (ReceiptNumber IS NOT NULL)
+    CONSTRAINT CHK_TotalPrice CHECK (TotalPrice > 0)
 );
 
 -- Customers pay departments for repairs
@@ -337,16 +338,16 @@ INSERT INTO Repairs VALUES
     (15, '78901234', 5, '2023-06-30 10:00:00', '2023-06-30 13:30:00', 247.50);
 
 INSERT INTO Orders VALUES
-    (1, 2, '2023-07-05 09:00:00', '2023-07-10 14:00:00', 100, 15.75, 1575.00, '12345'),
-    (3, 5, '2023-06-20 10:30:00', '2023-06-25 11:45:00', 50, 30.50, 1525.00, '67890'),
-    (2, 3, '2023-04-15 11:15:00', '2023-04-20 13:30:00', 200, 8.25, 1650.00, '23456'),
-    (4, 1, '2023-08-05 12:45:00', '2023-08-10 16:00:00', 75, 22.00, 1650.00, '78901'),
-    (1, 7, '2023-05-10 14:30:00', '2023-05-15 17:15:00', 120, 10.00, 1200.00, '34567'),
-    (3, 4, '2023-03-25 15:00:00', '2023-03-30 18:30:00', 90, 40.25, 3615.00, '89012'),
-    (2, 6, '2023-02-15 16:30:00', '2023-02-20 19:45:00', 40, 18.75, 750.00, '45678'),
-    (4, 2, '2023-01-10 17:45:00', '2023-01-15 20:00:00', 150, 25.50, 3825.00, '90123'),
-    (1, 5, '2023-08-10 09:15:00', '2023-08-15 12:30:00', 80, 35.00, 2800.00, '56789'),
-    (3, 7, '2023-07-05 10:45:00', '2023-07-10 14:00:00', 60, 12.00, 720.00, '23456');
+    (1, 2, 3, '2023-07-05 09:00:00', '2023-07-10 14:00:00', 100, 15.75, 1575.00, '12345'),
+    (3, 5, 3, '2023-06-20 10:30:00', '2023-06-25 11:45:00', 50, 30.50, 1525.00, '67890'),
+    (2, 3, 4, '2023-04-15 11:15:00', '2023-04-20 13:30:00', 200, 8.25, 1650.00, '23456'),
+    (4, 1, 4, '2023-08-05 12:45:00', '2023-08-10 16:00:00', 75, 22.00, 1650.00, '78901'),
+    (1, 7, 3, '2023-05-10 14:30:00', '2023-05-15 17:15:00', 120, 10.00, 1200.00, '34567'),
+    (3, 4, 3, '2023-03-25 15:00:00', '2023-03-30 18:30:00', 90, 40.25, 3615.00, '89012'),
+    (2, 6, 4, '2023-02-15 16:30:00', '2023-02-20 19:45:00', 40, 18.75, 750.00, '45678'),
+    (4, 2, 4, '2023-01-10 17:45:00', '2023-01-15 20:00:00', 150, 25.50, 3825.00, '90123'),
+    (1, 5, 5, '2023-08-10 09:15:00', '2023-08-15 12:30:00', 80, 35.00, 2800.00, '56789'),
+    (3, 7, 4, '2023-07-05 10:45:00', '2023-07-10 14:00:00', 60, 12.00, 720.00, '23456');
 
 INSERT INTO Payments VALUES
     (1, 2, 3, '2023-07-05 10:00:00', 200.00),
