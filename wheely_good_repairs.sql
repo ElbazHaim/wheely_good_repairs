@@ -102,7 +102,7 @@ CREATE TABLE Models (
     Manufacturer VARCHAR(50),
     Type VARCHAR(10),
     FuelType VARCHAR(50),
-    Gear VARCHAR(10),
+    Gear VARCHAR(20),
     Year DATE,
     Seats INT,
     CHECK (Type IN ('car', 'motorcycle', 'truck', 'SUV', 'van')),
@@ -185,17 +185,16 @@ CREATE TABLE Payments (
 
 INSERT INTO Customers
 VALUES
-    ('Avraham', 'Levi', '12345678', '1990-05-15', 'Harel Insurance', 'Tel Aviv', '123 Hertzl', 
+    ('Avraham', 'Levi', '12345678', '1990-05-15', '2022-04-08', 'Harel Insurance', 'Tel Aviv', '123 Hertzl', 
         '1234567890', 'avraham@gmail.com', '12345678'),
-    ('Sarah', 'Cohen', '87654321', '1985-10-20', 'IDII Insurance', 'Jerusalem', '456 Jaffa', 
+    ('Sarah', 'Cohen', '87654321', '1985-10-20', '2020-11-17', 'IDII Insurance', 'Jerusalem', '456 Jaffa', 
         '9876543210', 'sara@yahoo.com', '87654321'),
-    ('Yaakov', 'Ben-David', '23456789', '2000-02-01', 'Leumit Insurance', 'Haifa', '789 Harbor', 
+    ('Yaakov', 'Ben-David', '23456789', '2000-02-01', '2021-09-25', 'Leumit Insurance', 'Haifa', '789 Harbor', 
         '5678901234', 'yaakov@gmail.com', '23456789'),
-    ('Rachel', 'Shapira', '98765432', '1978-08-10', 'Poalim Insurance', 'Beersheba', '567 Ben-Gurion', 
+    ('Rachel', 'Shapira', '98765432', '1978-08-10', '2019-07-02', 'Poalim Insurance', 'Beersheba', '567 Ben-Gurion', 
         '8765432109', 'rachel@yahoo.com', '98765432'),
-    ('Daniel', 'Almog', '34567890', '1995-03-25', 'Harel Insurance', 'Eilat', '901 Hatamar', 
+    ('Daniel', 'Almog', '34567890', '1995-03-25', '2022-01-20', 'Harel Insurance', 'Eilat', '901 Hatamar', 
         '2345678901', 'daniel@gmail.com', '34567890');
-
 
 -- Departments and employees foreign keys are circular - I Will disable the constraints just so that I can insert the departments
 ALTER TABLE Employees NOCHECK CONSTRAINT FK_DepartmentID;
@@ -262,17 +261,17 @@ VALUES
     -- Technicians
 INSERT INTO Employees
 VALUES
-    ('Oren', 'Dagan', '789061234', '1990-09-12', '2022-07-05', 4, 1, 
+    ('Oren', 'Dagan', '789061234', '1990-09-12', '2022-07-05', 3, 1, 
             'oren@example.com', 'Tel Aviv', '404 Maple', 57000.00, 'Practical Engineering in Mechanics', '7890123456789'),
-    ('Noa', 'Gavriel', '766543210', '1993-08-09', '2022-06-15', 4, 12, 
+    ('Noa', 'Gavriel', '766543210', '1993-08-09', '2022-06-15', 3, 12, 
             'noa@example.com', 'Haifa', '1010 Elm', 57000.00, 'Diploma in Automotive Technology', '7654321098765'),
-    ('Eitan', 'Adler', '654832109', '1988-05-07', '2019-12-05', 5, NULL, 
+    ('Eitan', 'Adler', '654832109', '1988-05-07', '2019-12-05', 4, NULL, 
             'eitan@example.com', 'Tel Aviv', '1111 Oak', 55000.00, 'Practical Engineering in Auto Electronics', '6543210987654'),
-    ('Talia', 'Levy', '543213098', '1997-03-02', '2023-02-20', 5, 14, 
+    ('Talia', 'Levy', '543213098', '1997-03-02', '2023-02-20', 4, 14, 
             'talia@example.com', 'Tel Aviv', '1212 Pine', 59000.00, 'BSc. in Mechanical Engineering', '5432109876543'),
-    ('Ronen', 'Cohen', '432104987', '1991-12-12', '2018-07-01', 6, NULL, 
+    ('Ronen', 'Cohen', '432104987', '1991-12-12', '2018-07-01', 5, NULL, 
             'ronen@example.com', 'Eilat', '1313 Elm', 51000.00, 'BSc. Electrical Engineering', '4321098765432'),
-    ('Eli', 'Luzon', '953468725', '1990-05-06', '2019-02-02', 6, NULL, 
+    ('Eli', 'Luzon', '953468725', '1990-05-06', '2019-02-02', 5, NULL, 
     'Luzon@gmail.com', 'Holon', '1234 Sokolov', 75000.00, NULL, '3462587295643');
 
 INSERT INTO Technicians
@@ -319,6 +318,10 @@ VALUES
     ('901234', 'CarCare Supplies', '2223334444', 'Liat Rosenberg', '101 Kibutz-Galuyot Ln', 'liat.rosenberg@gmail.com'),
     ('567890', 'TruckParts Ltd.', '7778889999', 'Jonathan Ben-David', '202 Hahagana Blvd', 'jonathan.bendavid@gmail.com');
 
+
+-- TODO: Add vehicles
+
+
 INSERT INTO Repairs
 VALUES
     (12, '1234567', 1, '2023-01-15 09:00:00', '2023-01-15 11:00:00', 275.00),
@@ -345,4 +348,16 @@ VALUES
     (1, 5, '2023-08-10 09:15:00', '2023-08-15 12:30:00', 80, 35.00, 2800.00, '56789'),
     (3, 7, '2023-07-05 10:45:00', '2023-07-10 14:00:00', 60, 12.00, 720.00, '23456');
 
+INSERT INTO Payments (CustomerID, DepartmentID, RepairID, TransactionDate, AmountPaid)
+VALUES
+    (1, 2, 3, '2023-07-05 10:00:00', 200.00),
+    (2, 1, 5, '2023-06-20 11:30:00', 150.50),
+    (3, 3, 2, '2023-04-15 12:45:00', 100.25),
+    (4, 2, 4, '2023-08-05 13:30:00', 75.00),
+    (5, 1, 1, '2023-05-10 14:45:00', 120.00),
+    (1, 3, 7, '2023-03-25 15:45:00', 90.75),
+    (2, 1, 6, '2023-02-15 16:00:00', 40.50),
+    (3, 2, 8, '2023-01-10 17:15:00', 150.00),
+    (4, 3, 9, '2023-08-10 18:30:00', 80.25),
+    (5, 2, 10, '2023-07-05 19:00:00', 60.00);
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
