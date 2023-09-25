@@ -1,4 +1,5 @@
 USE wheely_good_repairs;
+
 -- Inserts
 
 INSERT INTO Customers VALUES
