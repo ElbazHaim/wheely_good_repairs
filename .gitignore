@@ -6,3 +6,4 @@ Ex1.pdf
 *.csv
 .DS_Store
 scratchpad.sql
+documents/*
