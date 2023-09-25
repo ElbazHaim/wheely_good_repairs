@@ -2,3 +2,5 @@
 *.DS_Store
 scratchpad.sql
 documents/*
+node*
+*.json
