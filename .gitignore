@@ -1,9 +1,4 @@
-*.pptx
 *.code-workspace
-*.docx
-Ex1.pdf
-*.xlsx
-*.csv
-.DS_Store
+*.DS_Store
 scratchpad.sql
 documents/*
