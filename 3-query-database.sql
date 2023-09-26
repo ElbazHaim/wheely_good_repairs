@@ -16,18 +16,64 @@ FROM
   Customers
   INNER JOIN (
     SELECT
-      Vehicles.[Owner],
-      Repairs.LicensePlate,
+      V.[Owner],
+      R.LicensePlate,
       SUM(TotalCost) as SumCost
     FROM
-      Vehicles
-      JOIN Repairs ON Vehicles.LicensePlate = Repairs.LicensePlate
+      Vehicles AS V
+      JOIN Repairs AS R ON V.LicensePlate = R.LicensePlate
     WHERE
-      Vehicles.Mileage < 50000
+      V.Mileage < 50000
     GROUP BY
-      Repairs.LicensePlate,
-      Vehicles.[Owner]
+      R.LicensePlate,
+      V.[Owner]
     HAVING
-      COUNT(Repairs.LicensePlate) > 1
+      COUNT(R.LicensePlate) > 1
   ) AS SubQuery ON CustomerID = SubQuery.[Owner];
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
+-- /*
+-- Query 2:
+--     Find lowest-cost suppliers for the most frequently used part
+-- */
+SELECT
+  SubQuery1.PartID,
+  SubQuery1.PartName,
+  SubQuery1.UsageFrequency,
+  SubQuery2.SupplierID,
+  SubQuery2.MinPricePerUnit
+FROM
+  (
+    SELECT
+      P.PartID,
+      P.PartName,
+      COUNT(R.RepairID) AS UsageFrequency
+    FROM
+      Parts as P
+      LEFT JOIN Repairs AS R ON P.PartID = R.PartID
+    GROUP BY
+      P.PartID,
+      P.PartName
+  ) AS SubQuery1
+  JOIN (
+    SELECT
+      O.SupplierID,
+      O.PartID,
+      O.PricePerUnit AS MinPricePerUnit,
+      S.CompanyName
+    FROM
+      Orders AS O
+      JOIN Suppliers AS S ON O.SupplierID = S.SupplierID
+      JOIN (
+        SELECT
+          PartID,
+          MIN(PricePerUnit) AS MinPricePerUnit
+        FROM
+          Orders
+        GROUP BY
+          PartID
+      ) AS MinPrices ON O.PartID = MinPrices.PartID
+      AND O.PricePerUnit = MinPrices.MinPricePerUnit
+  ) AS SubQuery2 ON SubQuery1.PartID = SubQuery2.PartID
+ORDER BY
+  UsageFrequency
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
