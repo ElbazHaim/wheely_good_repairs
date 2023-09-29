@@ -31,16 +31,17 @@ FROM
       COUNT(R.LicensePlate) > 1
   ) AS SubQuery ON CustomerID = SubQuery.[Owner];
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
--- /*
--- Query 2:
---     Find lowest-cost suppliers for the most frequently used part
--- */
+  -- /*
+  -- Query 2:
+  --     Find lowest-cost suppliers for the most frequently used part
+  -- */
 SELECT
+  SubQuery1.UsageFrequency,
   SubQuery1.PartID,
   SubQuery1.PartName,
-  SubQuery1.UsageFrequency,
-  SubQuery2.SupplierID,
-  SubQuery2.MinPricePerUnit
+  SubQuery2.MinPricePerUnit,
+  SubQuery2.SupplierName,
+  SubQuery2.SupplierPhoneNumber
 FROM
   (
     SELECT
@@ -56,10 +57,10 @@ FROM
   ) AS SubQuery1
   JOIN (
     SELECT
-      O.SupplierID,
+      S.CompanyName AS SupplierName,
+      S.PhoneNumber AS SupplierPhoneNumber,
       O.PartID,
-      O.PricePerUnit AS MinPricePerUnit,
-      S.CompanyName
+      O.PricePerUnit AS MinPricePerUnit
     FROM
       Orders AS O
       JOIN Suppliers AS S ON O.SupplierID = S.SupplierID
@@ -75,5 +76,5 @@ FROM
       AND O.PricePerUnit = MinPrices.MinPricePerUnit
   ) AS SubQuery2 ON SubQuery1.PartID = SubQuery2.PartID
 ORDER BY
-  UsageFrequency
+  UsageFrequency DESC;
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
