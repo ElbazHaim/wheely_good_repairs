@@ -78,3 +78,47 @@ FROM
 ORDER BY
   UsageFrequency DESC;
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
+  USE wheely_good_repairs;
+  /* 
+  Query 3: Average accidents per model
+  */
+SELECT
+  AVG(CAST(Accidents AS DECIMAL(10, 2))) AS AverageAccidents,
+  ModelCode
+FROM
+  Vehicles
+GROUP BY
+  ModelCode;
+SELECT
+  Accidents,
+  ModelCode
+FROM
+  Vehicles
+SELECT
+  *
+FROM
+  Repairs;
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
+  /* 
+  Query 4: List repairs by their profit
+  */
+SELECT
+  Repairs.RepairID,
+  Repairs.TechnicianID,
+  Vehicles.ModelCode,
+  RepairDurationInHours,
+  TotalCost / RepairDurationInHours - Parts.Cost AS ProfitPerHour
+FROM
+  Repairs
+  JOIN (
+    SELECT
+      RepairID,
+      DATEDIFF(MINUTE, StartRepairTime, EndRepairTime) / 60.0 AS RepairDurationInHours
+    FROM
+      Repairs
+  ) AS SubQuery ON Repairs.RepairID = SubQuery.RepairID
+  JOIN Parts ON Repairs.PartID = Parts.PartID
+  JOIN Vehicles ON Repairs.LicensePlate = Vehicles.LicensePlate
+ORDER BY
+  ProfitPerHour DESC;
+--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
