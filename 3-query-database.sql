@@ -175,7 +175,8 @@ ORDER BY
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
 /*
 Query 7:
-	Between; Where; Like;
+	Amount of money payed, number of repairs and customer details,	
+	for customers born between 1980 and 1996 and insured by 'Harel'.
 */
 SELECT
   Customers.FirstName,
